@@ -8,9 +8,10 @@ import { IntakeLogsModule } from './intake_logs/intake_logs.module';
 import { DailyNutritionLogsModule } from './daily_nutrition_logs/daily_nutrition_logs.module';
 import { CategoriesModule } from './categories/categories.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [UsersModule, FoodsModule, ProfileModule, IntakeLogsModule, DailyNutritionLogsModule, CategoriesModule, PrismaModule],
+  imports: [UsersModule, FoodsModule, ProfileModule, IntakeLogsModule, DailyNutritionLogsModule, CategoriesModule, PrismaModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })
