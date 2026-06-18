@@ -8,6 +8,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { registerDto } from '../auth/dto/register.dto';
 import { type AuthUser } from '../common/current-user.decoraor';
+import { QueryUserDto } from './dto/query-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -17,11 +18,21 @@ export class UsersService {
     return this.prisma.users.create({ data: createUserDto });
   }
 
-  findAll(userRole: string) {
+  async findAll(query: QueryUserDto, userRole: string) {
     // 권한 확인 후 모두 조회
     if (userRole !== 'ADMIN')
       throw new ForbiddenException('해당 권한이 없습니다');
-    return this.prisma.users.findMany({ orderBy: { id: 'asc' } });
+
+    const { page, limit } = query;
+    const [users, total] = await Promise.all([
+      this.prisma.users.findMany({
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { id: 'asc' },
+      }),
+      this.prisma.users.count(),
+    ]);
+    return { users, total, page, limit, totalPage: Math.ceil(total / limit) };
   }
 
   async findOne(id: number, user: AuthUser) {
