@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  User
+  ADMIN
+}
+
+enum Gender {
+  Man
+  Woman
+}
+
+model Users {
+  id                 Int                    @id @default(autoincrement())
+  email              String                 @unique
+  name               String
+  password           String
+  role               Role                   @default(User)
+  created_at         DateTime               @default(now())
+  dailyNutritionLogs daily_nutrition_logs[]
+  profile            Profile?
+  intakeLogs         intake_logs?
+}
+
+model Foods {
+  id                   Int          @id @default(autoincrement())
+  name                 String
+  brandName            String
+  calorie              Int
+  carbohydrate         Int
+  protein              Int
+  fat                  Int
+  sodium               Int
+  NUTRI_AMOUNT_SERVING Int // 1회 섭취 참고량
+  SERVING_SIZE         Int //영양 성분 기준량
+  total_capacity       Int // 총 용량
+  category             Categories[]
+  created_at           DateTime     @default(now())
+  intakeLogs           intake_logs?
+}
+
+model Categories {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String   @default("")
+  food        Foods    @relation(fields: [foodId], references: [id])
+  foodId      Int
+  created_at  DateTime @default(now())
+}
+
+model Profile {
+  id                Int      @id @default(autoincrement())
+  userId            Int      @unique
+  user              Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weight            Int
+  height            Int
+  gender            Gender
+  calorie_goal      Int      @default(2000)
+  carbohydrate_goal Int      @default(250)
+  protein_goal      Int      @default(100)
+  fat_goal          Int      @default(65)
+  sodium_goal       Int      @default(2000)
+  created_at        DateTime @default(now())
+}
+
+model daily_nutrition_logs {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @unique
+  user         Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  calorie      Int
+  carbohydrate Int
+  protein      Int
+  fat          Int
+  sodium       Int
+  log_date     DateTime @default(now())
+  created_at   DateTime @default(now())
+}
+
+model intake_logs {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @unique
+  user         Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  foodId       Int      @unique
+  food         Foods    @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  intake       Int
+  calorie      Int
+  carbohydrate Int
+  protein      Int
+  fat          Int
+  sodium       Int
+  eaten_at     DateTime @default(now())
+}
