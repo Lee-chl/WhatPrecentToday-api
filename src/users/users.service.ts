@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { registerDto } from '../auth/dto/register.dto';
@@ -20,7 +20,7 @@ export class UsersService {
   }
 
   async findByEmail(email: string) {
-    return  await this.prisma.users.findUnique({ where: { email } });
+    return await this.prisma.users.findUnique({ where: { email } });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
