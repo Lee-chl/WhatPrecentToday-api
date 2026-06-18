@@ -1,7 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { registerDto } from '../auth/dto/register.dto';
+import { type AuthUser } from '../common/current-user.decoraor';
 
 @Injectable()
 export class UsersService {
@@ -11,23 +17,52 @@ export class UsersService {
     return this.prisma.users.create({ data: createUserDto });
   }
 
-  findAll() {
-    return `This action returns all users`;
+  findAll(userRole: string) {
+    // 권한 확인 후 모두 조회
+    if (userRole !== 'ADMIN')
+      throw new ForbiddenException('해당 권한이 없습니다');
+    return this.prisma.users.findMany({ orderBy: { id: 'asc' } });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: number, user: AuthUser) {
+    // 권한 확인 후 관리자면 조회 가능
+    // 관리자가 아닐 경우 본인 id만 가능
+    if (user.role !== 'ADMIN' && id !== user.id)
+      throw new ForbiddenException('해당 권한이 없습니다.');
+    // 진짜 유저가 있나 확인
+    const exists = await this.prisma.users.findUnique({ where: { id } });
+    if (!exists) throw new NotFoundException(`${id} 유저가 없습니다.`);
+
+    return exists;
   }
 
-  async findByEmail(email: string) {
-    return await this.prisma.users.findUnique({ where: { email } });
+  findByEmail(email: string) {
+    return this.prisma.users.findUnique({ where: { email } });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    if (updateUserDto.email) {
+      const exists = await this.prisma.users.findUnique({
+        where: { email: updateUserDto.email },
+      });
+
+      if (exists) throw new BadRequestException('요청을 처리할 수 없습니다.');
+    }
+
+    const user = await this.prisma.users.update({
+      where: { id },
+      data: updateUserDto,
+    });
+    const { password, ...result } = user;
+    return result;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number, user: AuthUser) {
+    if (user.role !== 'ADMIN')
+      throw new ForbiddenException('해당 권한이 없습니다.');
+
+    await this.findOne(id, user);
+    await this.prisma.users.delete({ where: { id } });
+    return { deleted: id };
   }
 }

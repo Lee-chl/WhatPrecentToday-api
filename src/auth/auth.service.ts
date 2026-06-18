@@ -9,6 +9,8 @@ import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { jwtConstants } from './constants';
 import { LoginDto } from './dto/login.dto';
+import { UpdateUserDto } from '../users/dto/update-user.dto';
+import { type AuthUser } from '../common/current-user.decoraor';
 
 @Injectable()
 export class AuthService {
@@ -46,5 +48,19 @@ export class AuthService {
       role: user.role,
     };
     return { accessToken: this.jwtService.sign(payload) };
+  }
+
+  async updateUser(id: number, updateUserDto: UpdateUserDto, user: AuthUser) {
+    // 사용자 확인
+    await this.userService.findOne(id, user);
+    if (updateUserDto.password) {
+      // 비밀번호 암호화
+      const hashed = await bcrypt.hash(
+        updateUserDto.password,
+        jwtConstants.round,
+      );
+      updateUserDto.password = hashed;
+    }
+    return this.userService.update(id, updateUserDto);
   }
 }

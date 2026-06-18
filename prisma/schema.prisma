@@ -33,6 +33,7 @@ model Users {
   dailyNutritionLogs daily_nutrition_logs[]
   profile            Profile?
   intakeLogs         intake_logs?
+  updateAt           DateTime               @updatedAt
 }
 
 model Foods {
@@ -45,11 +46,12 @@ model Foods {
   fat                  Int
   sodium               Int
   NUTRI_AMOUNT_SERVING Int // 1회 섭취 참고량
-  SERVING_SIZE         Int //영양 성분 기준량
+  SERVING_SIZE         Int // 영양 성분 기준량
   total_capacity       Int // 총 용량
   category             Categories[]
   created_at           DateTime     @default(now())
   intakeLogs           intake_logs?
+  updateAt             DateTime     @updatedAt
 }
 
 model Categories {
@@ -59,6 +61,7 @@ model Categories {
   food        Foods    @relation(fields: [foodId], references: [id])
   foodId      Int
   created_at  DateTime @default(now())
+  updateAt    DateTime @updatedAt
 }
 
 model Profile {
@@ -74,6 +77,7 @@ model Profile {
   fat_goal          Int      @default(65)
   sodium_goal       Int      @default(2000)
   created_at        DateTime @default(now())
+  updateAt          DateTime @updatedAt
 }
 
 model daily_nutrition_logs {
@@ -87,6 +91,7 @@ model daily_nutrition_logs {
   sodium       Int
   log_date     DateTime @default(now())
   created_at   DateTime @default(now())
+  updateAt     DateTime @updatedAt
 }
 
 model intake_logs {
@@ -102,4 +107,5 @@ model intake_logs {
   fat          Int
   sodium       Int
   eaten_at     DateTime @default(now())
+  updateAt     DateTime @updatedAt
 }
