@@ -10,6 +10,7 @@ async function bootstrap() {
     .setTitle('What Percent Today')
     .setDescription('오늘 몇 퍼 백엔드 입니다.')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, config));
