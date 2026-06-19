@@ -36,10 +36,7 @@ export class CategoriesController {
 
   @Get()
   @ApiOperation({ summary: '모든 카테고리 조회' })
-  findAll(
-    @Query() query: QueryDto,
-    @CurrentUser('role') userRole: string,
-  ) {
+  findAll(@Query() query: QueryDto, @CurrentUser('role') userRole: string) {
     return this.categoriesService.findAll(query, userRole);
   }
 
