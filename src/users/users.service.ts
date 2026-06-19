@@ -9,7 +9,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { registerDto } from '../auth/dto/register.dto';
 import { type AuthUser } from '../common/current-user.decoraor';
 import { QueryUserDto } from './dto/query-user.dto';
-import { checkPermission } from 'src/common/checkPermission';
+import { checkPermissionRole } from 'src/common/checkPermission';
 
 @Injectable()
 export class UsersService {
@@ -21,7 +21,7 @@ export class UsersService {
 
   async findAll(query: QueryUserDto, userRole: string) {
     // 권한 확인 후 모두 조회
-    checkPermission(userRole);
+    checkPermissionRole(userRole);
 
     const { page, limit } = query;
     const [users, total] = await Promise.all([
@@ -69,7 +69,7 @@ export class UsersService {
   }
 
   async remove(id: number, user: AuthUser) {
-    checkPermission(user.role);
+    checkPermissionRole(user.role);
     await this.findOne(id, user);
     await this.prisma.users.delete({ where: { id } });
     return { deleted: id };
