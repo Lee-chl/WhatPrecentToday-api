@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -14,6 +16,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../common/current-user.decoraor';
+import { QueryCategoryDto } from './dto/query-category.dto';
 
 @Controller('categories')
 @UseGuards(JwtAuthGuard)
@@ -32,25 +35,37 @@ export class CategoriesController {
   }
 
   @Get()
-  findAll() {
-    return this.categoriesService.findAll();
+  @ApiOperation({ summary: '모든 카테고리 조회' })
+  findAll(
+    @Query() query: QueryCategoryDto,
+    @CurrentUser('role') userRole: string,
+  ) {
+    return this.categoriesService.findAll(query, userRole);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.categoriesService.findOne(+id);
+  @ApiOperation({ summary: '카테고리 하나 조회' })
+  findOne(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser('role') userRole: string,
+  ) {
+    return this.categoriesService.findOne(id, userRole);
   }
 
   @Patch(':id')
   update(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
+    @CurrentUser('role') userRole: string,
   ) {
-    return this.categoriesService.update(+id, updateCategoryDto);
+    return this.categoriesService.update(+id, updateCategoryDto, userRole);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.categoriesService.remove(+id);
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser('role') userRole: string,
+  ) {
+    return this.categoriesService.remove(id, userRole);
   }
 }

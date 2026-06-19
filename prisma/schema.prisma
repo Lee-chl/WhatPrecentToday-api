@@ -58,8 +58,8 @@ model Categories {
   id          Int      @id @default(autoincrement())
   name        String   @unique
   description String   @default("")
-  food        Foods    @relation(fields: [foodId], references: [id])
-  foodId      Int
+  food        Foods?   @relation(fields: [foodId], references: [id])
+  foodId      Int?
   created_at  DateTime @default(now())
   updateAt    DateTime @updatedAt
 }
