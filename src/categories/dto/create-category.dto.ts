@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsString, Min, MinLength } from 'class-validator';
+import { IsOptional, IsString, MinLength } from 'class-validator';
 
 export class CreateCategoryDto {
   @ApiProperty({ example: '한식' })
@@ -11,10 +11,4 @@ export class CreateCategoryDto {
   @IsString()
   @IsOptional()
   description: string = '';
-
-  @IsOptional()
-  @ApiProperty({ example: 1 })
-  @IsInt()
-  @Min(1)
-  foodId: number;
 }

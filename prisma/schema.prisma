@@ -48,7 +48,8 @@ model Foods {
   NUTRI_AMOUNT_SERVING Int // 1회 섭취 참고량
   SERVING_SIZE         Int // 영양 성분 기준량
   total_capacity       Int // 총 용량
-  category             Categories[]
+  category             Categories?  @relation(fields: [categoryId], references: [id])
+  categoryId           Int?
   created_at           DateTime     @default(now())
   intakeLogs           intake_logs?
   updateAt             DateTime     @updatedAt
@@ -58,8 +59,7 @@ model Categories {
   id          Int      @id @default(autoincrement())
   name        String   @unique
   description String   @default("")
-  food        Foods?   @relation(fields: [foodId], references: [id])
-  foodId      Int?
+  foods       Foods[]
   created_at  DateTime @default(now())
   updateAt    DateTime @updatedAt
 }
