@@ -1,8 +1,8 @@
 import { IsInt, IsOptional, Min } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 
-export class QueryCategoryDto {
+export class QueryDto {
   @IsOptional()
   @IsInt()
   @Min(1)

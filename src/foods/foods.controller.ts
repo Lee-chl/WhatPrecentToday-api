@@ -15,7 +15,7 @@ import { UpdateFoodDto } from './dto/update-food.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/current-user.decoraor';
-import { QueryFoodDto } from './dto/query-food.dto';
+import { QueryDto } from '../common/query.dto';
 
 @Controller('foods')
 @ApiTags('foods')
@@ -35,7 +35,7 @@ export class FoodsController {
 
   @Get()
   @ApiOperation({ summary: '모든 음식 찾기' })
-  findAll(@Query() query: QueryFoodDto) {
+  findAll(@Query() query: QueryDto) {
     return this.foodsService.findAll(query);
   }
 

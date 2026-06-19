@@ -16,7 +16,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../common/current-user.decoraor';
-import { QueryCategoryDto } from './dto/query-category.dto';
+import { QueryDto } from '../common/query.dto';
 
 @Controller('categories')
 @UseGuards(JwtAuthGuard)
@@ -37,7 +37,7 @@ export class CategoriesController {
   @Get()
   @ApiOperation({ summary: '모든 카테고리 조회' })
   findAll(
-    @Query() query: QueryCategoryDto,
+    @Query() query: QueryDto,
     @CurrentUser('role') userRole: string,
   ) {
     return this.categoriesService.findAll(query, userRole);

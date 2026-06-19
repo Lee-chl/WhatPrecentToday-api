@@ -8,8 +8,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { registerDto } from '../auth/dto/register.dto';
 import { type AuthUser } from '../common/current-user.decoraor';
-import { QueryUserDto } from './dto/query-user.dto';
 import { checkPermissionRole } from 'src/common/checkPermission';
+import { QueryDto } from '../common/query.dto';
 
 @Injectable()
 export class UsersService {
@@ -19,7 +19,7 @@ export class UsersService {
     return this.prisma.users.create({ data: createUserDto });
   }
 
-  async findAll(query: QueryUserDto, userRole: string) {
+  async findAll(query: QueryDto, userRole: string) {
     // 권한 확인 후 모두 조회
     checkPermissionRole(userRole);
 

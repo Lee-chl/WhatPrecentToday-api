@@ -6,8 +6,8 @@ import {
 import { CreateFoodDto } from './dto/create-food.dto';
 import { UpdateFoodDto } from './dto/update-food.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { QueryFoodDto } from './dto/query-food.dto';
 import { checkPermissionRole } from 'src/common/checkPermission';
+import { QueryDto } from '../common/query.dto';
 
 @Injectable()
 export class FoodsService {
@@ -38,7 +38,7 @@ export class FoodsService {
     return this.prisma.foods.create({ data: createFoodDto });
   }
 
-  async findAll(query: QueryFoodDto) {
+  async findAll(query: QueryDto) {
     const { page, limit } = query;
     const [foods, total] = await Promise.all([
       this.prisma.foods.findMany({

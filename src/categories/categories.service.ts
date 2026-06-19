@@ -1,14 +1,13 @@
 import {
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { QueryCategoryDto } from './dto/query-category.dto';
 import { checkPermissionRole } from 'src/common/checkPermission';
+import { QueryDto } from '../common/query.dto';
 
 @Injectable()
 export class CategoriesService {
@@ -27,7 +26,7 @@ export class CategoriesService {
       data: createCategoryDto,
     });
   }
-  async findAll(query: QueryCategoryDto, userRole: string) {
+  async findAll(query: QueryDto, userRole: string) {
     // 권한 확인
     checkPermissionRole(userRole);
 
