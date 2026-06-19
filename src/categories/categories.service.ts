@@ -8,14 +8,14 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { QueryCategoryDto } from './dto/query-category.dto';
-import { checkPermission } from 'src/common/checkPermission';
+import { checkPermissionRole } from 'src/common/checkPermission';
 
 @Injectable()
 export class CategoriesService {
   constructor(private readonly prisma: PrismaService) {}
   async create(createCategoryDto: CreateCategoryDto, userRole: string) {
     // 권한 확인
-    checkPermission(userRole);
+    checkPermissionRole(userRole);
     // 중복인지 확인
     const exists = await this.prisma.categories.findUnique({
       where: { name: createCategoryDto.name },
@@ -29,7 +29,7 @@ export class CategoriesService {
   }
   async findAll(query: QueryCategoryDto, userRole: string) {
     // 권한 확인
-    checkPermission(userRole);
+    checkPermissionRole(userRole);
 
     const { page, limit } = query;
     const [categories, total] = await Promise.all([
@@ -51,7 +51,7 @@ export class CategoriesService {
   }
 
   async findOne(id: number, userRole: string) {
-    checkPermission(userRole);
+    checkPermissionRole(userRole);
 
     const exists = await this.prisma.categories.findUnique({ where: { id } });
     if (!exists) throw new NotFoundException('존재하지 않는 카테고리입니다.');

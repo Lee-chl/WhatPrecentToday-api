@@ -53,6 +53,7 @@ export class CategoriesController {
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: '카테고리 수정' })
   update(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
@@ -62,6 +63,7 @@ export class CategoriesController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: '카테고리 삭제' })
   remove(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser('role') userRole: string,
