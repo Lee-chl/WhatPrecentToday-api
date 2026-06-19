@@ -69,9 +69,7 @@ export class UsersService {
   }
 
   async remove(id: number, user: AuthUser) {
-    if (user.role !== 'ADMIN')
-      throw new ForbiddenException('해당 권한이 없습니다.');
-
+    checkPermission(user.role);
     await this.findOne(id, user);
     await this.prisma.users.delete({ where: { id } });
     return { deleted: id };
