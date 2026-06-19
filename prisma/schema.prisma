@@ -32,27 +32,27 @@ model Users {
   created_at         DateTime               @default(now())
   dailyNutritionLogs daily_nutrition_logs[]
   profile            Profile?
-  intakeLogs         intake_logs?
+  intakeLogs         intake_logs[]
   updateAt           DateTime               @updatedAt
 }
 
 model Foods {
-  id                   Int          @id @default(autoincrement())
+  id                   Int           @id @default(autoincrement())
   name                 String
   brandName            String
-  calorie              Decimal      @db.Decimal(10, 2)
-  carbohydrate         Decimal      @db.Decimal(10, 2)
-  protein              Decimal      @db.Decimal(10, 2)
-  fat                  Decimal      @db.Decimal(10, 2)
-  sodium               Decimal      @db.Decimal(10, 2)
-  NUTRI_AMOUNT_SERVING Decimal      @db.Decimal(10, 2) // 1회 섭취 참고량
-  SERVING_SIZE         Decimal      @db.Decimal(10, 2) // 영양 성분 기준량
-  total_capacity       Decimal      @db.Decimal(10, 2) // 총 용량
-  category             Categories?  @relation(fields: [categoryId], references: [id])
+  calorie              Decimal       @db.Decimal(10, 2)
+  carbohydrate         Decimal       @db.Decimal(10, 2)
+  protein              Decimal       @db.Decimal(10, 2)
+  fat                  Decimal       @db.Decimal(10, 2)
+  sodium               Decimal       @db.Decimal(10, 2)
+  NUTRI_AMOUNT_SERVING Decimal       @db.Decimal(10, 2) // 1회 섭취 참고량
+  SERVING_SIZE         Decimal       @db.Decimal(10, 2) // 영양 성분 기준량
+  total_capacity       Decimal       @db.Decimal(10, 2) // 총 용량
+  category             Categories?   @relation(fields: [categoryId], references: [id])
   categoryId           Int?
-  created_at           DateTime     @default(now())
-  intakeLogs           intake_logs?
-  updateAt             DateTime     @updatedAt
+  created_at           DateTime      @default(now())
+  intakeLogs           intake_logs[]
+  updateAt             DateTime      @updatedAt
 }
 
 model Categories {
@@ -96,9 +96,9 @@ model daily_nutrition_logs {
 
 model intake_logs {
   id           Int      @id @default(autoincrement())
-  userId       Int      @unique
+  userId       Int
   user         Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  foodId       Int      @unique
+  foodId       Int
   food         Foods    @relation(fields: [foodId], references: [id], onDelete: Cascade)
   intake       Decimal  @db.Decimal(10, 2)
   calorie      Decimal  @db.Decimal(10, 2)
@@ -108,4 +108,7 @@ model intake_logs {
   sodium       Decimal  @db.Decimal(10, 2)
   eaten_at     DateTime @default(now())
   updateAt     DateTime @updatedAt
+
+  // 유저가 같은 음식을 하루에 여러번 먹을 경우 생각해 unique 걸어두기
+  @@unique([userId, foodId, eaten_at])
 }
