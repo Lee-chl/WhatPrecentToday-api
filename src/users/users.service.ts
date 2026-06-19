@@ -9,6 +9,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { registerDto } from '../auth/dto/register.dto';
 import { type AuthUser } from '../common/current-user.decoraor';
 import { QueryUserDto } from './dto/query-user.dto';
+import { checkPermission } from 'src/common/checkPermission';
 
 @Injectable()
 export class UsersService {
@@ -20,8 +21,7 @@ export class UsersService {
 
   async findAll(query: QueryUserDto, userRole: string) {
     // 권한 확인 후 모두 조회
-    if (userRole !== 'ADMIN')
-      throw new ForbiddenException('해당 권한이 없습니다');
+    checkPermission(userRole);
 
     const { page, limit } = query;
     const [users, total] = await Promise.all([
