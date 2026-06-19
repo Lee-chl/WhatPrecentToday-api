@@ -1,34 +1,67 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { FoodsService } from './foods.service';
 import { CreateFoodDto } from './dto/create-food.dto';
 import { UpdateFoodDto } from './dto/update-food.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth/jwt-auth.guard';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CurrentUser } from 'src/common/current-user.decoraor';
+import { QueryFoodDto } from './dto/query-food.dto';
 
 @Controller('foods')
+@ApiTags('foods')
 export class FoodsController {
   constructor(private readonly foodsService: FoodsService) {}
 
   @Post()
-  create(@Body() createFoodDto: CreateFoodDto) {
-    return this.foodsService.create(createFoodDto);
+  @ApiOperation({ summary: '음식 추가' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  create(
+    @Body() createFoodDto: CreateFoodDto,
+    @CurrentUser('role') userRole: string,
+  ) {
+    return this.foodsService.create(createFoodDto, userRole);
   }
 
   @Get()
-  findAll() {
-    return this.foodsService.findAll();
+  @ApiOperation({ summary: '모든 음식 찾기' })
+  findAll(@Query() query: QueryFoodDto) {
+    return this.foodsService.findAll(query);
   }
 
   @Get(':id')
+  @ApiOperation({ summary: '음식 하나 찾기' })
   findOne(@Param('id') id: string) {
     return this.foodsService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFoodDto: UpdateFoodDto) {
-    return this.foodsService.update(+id, updateFoodDto);
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: '음식 수정' })
+  @ApiBearerAuth()
+  update(
+    @Param('id') id: string,
+    @Body() updateFoodDto: UpdateFoodDto,
+    @CurrentUser('role') userRole: string,
+  ) {
+    return this.foodsService.update(+id, updateFoodDto, userRole);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.foodsService.remove(+id);
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '음식 삭제' })
+  remove(@Param('id') id: string, @CurrentUser('role') userRole: string) {
+    return this.foodsService.remove(+id, userRole);
   }
 }

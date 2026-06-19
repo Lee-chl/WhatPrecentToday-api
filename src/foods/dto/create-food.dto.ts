@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsInt,
+  IsNumber,
   IsOptional,
   IsString,
   Min,
@@ -20,49 +21,50 @@ export class CreateFoodDto {
   brandName: string;
 
   @ApiProperty({ example: 2 })
-  @IsInt()
+  @IsNumber()
   @Min(0)
   calorie: number;
 
   @ApiProperty({ example: 0 })
-  @IsInt()
+  @IsNumber()
   @Min(0)
   carbohydrate: number;
 
   @ApiProperty({ example: 0.14 })
-  @IsInt()
+  @IsNumber()
   @Min(0)
   protein: number;
 
   @ApiProperty({ example: 0 })
-  @IsInt()
+  @IsNumber()
   @Min(0)
   fat: number;
 
   @ApiProperty({ example: 0 })
-  @IsInt()
+  @IsNumber()
   @Min(0)
   sodium: number;
 
   @ApiProperty({ example: 10 })
-  @IsInt()
+  @IsNumber()
   @Min(0)
   @IsOptional()
   NUTRI_AMOUNT_SERVING: number = 0;
 
   @ApiProperty({ example: 100 })
-  @IsInt()
+  @IsNumber()
   @Min(0)
   @IsOptional()
   SERVING_SIZE: number = 0;
 
   @ApiProperty({ example: 710 })
-  @IsInt()
+  @IsNumber()
   @Min(0)
   total_capacity: number;
 
+  @IsOptional()
   @ApiProperty({ example: 1 })
-  @IsArray()
-  @IsInt({ each: true })
-  categoryIds: number[];
+  @IsInt()
+  @Min(1)
+  categoryId?: number;
 }
