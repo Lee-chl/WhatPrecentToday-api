@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsNumber, Min } from 'class-validator';
+import {
+  IsDateString,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  Min,
+} from 'class-validator';
 
 export class CreateIntakeLogDto {
   @IsInt()
@@ -12,33 +18,45 @@ export class CreateIntakeLogDto {
   @ApiProperty({ example: 1 })
   foodId: number;
 
-  @ApiProperty({ example: 100, description: '섭취량(g)' })
+  // 섭취량 (g)
+  @IsOptional()
+  @ApiProperty({ example: 30 })
   @Min(0)
   @IsNumber()
   intake: number;
 
-  @ApiProperty({ example: 10, description: '먹은 칼로리(g)' })
+  // 해당 상품의 먹은 칼로리(g)
   @Min(0)
+  @IsOptional()
   @IsNumber()
-  calories: number;
+  calorie: number;
 
-  @ApiProperty({ example: 10, description: '먹은 탄수화물(g)' })
+  // 해당 상품의 먹은 탄수화물(g)
   @IsNumber()
+  @IsOptional()
   @Min(0)
   carbohydrate: number;
 
-  @ApiProperty({ example: 10, description: '먹은 단백질(g)' })
+  // 해당 상품의 먹은 단백질(g)
   @IsNumber()
+  @IsOptional()
   @Min(0)
   protein: number;
 
-  @ApiProperty({ example: 10, description: '먹은 지방(g)' })
+  // 해당 상품의 먹은 지방(g)
   @IsNumber()
+  @IsOptional()
   @Min(0)
   fat: number;
 
-  @ApiProperty({ example: 10, description: '먹은 나트륨(g)' })
+  // 해당 상품의 먹은 나트륨(g)
   @IsNumber()
+  @IsOptional()
   @Min(0)
   sodium: number;
+
+  @IsOptional()
+  @IsDateString()
+  @ApiProperty({ example: '2026-06-19T00:00:00+09:00' })
+  eaten_at: Date;
 }
