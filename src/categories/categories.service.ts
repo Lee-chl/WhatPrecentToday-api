@@ -7,13 +7,14 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { QueryCategoryDto } from './dto/query-category.dto';
+import { checkPermission } from 'src/common/checkPermission';
 
 @Injectable()
 export class CategoriesService {
   constructor(private readonly prisma: PrismaService) {}
   async create(createCategoryDto: CreateCategoryDto, userRole: string) {
     // 권한 확인
-    this.checkPermission(userRole);
+    checkPermission(userRole);
     // 중복인지 확인
     const exists = await this.prisma.categories.findUnique({
       where: { name: createCategoryDto.name },
@@ -26,7 +27,7 @@ export class CategoriesService {
 
   async findAll(query: QueryCategoryDto, userRole: string) {
     // 권한 확인
-    this.checkPermission(userRole);
+    checkPermission(userRole);
 
     const { page, limit } = query;
     const [categories, total] = await Promise.all([
@@ -47,7 +48,7 @@ export class CategoriesService {
   }
 
   async findOne(id: number, userRole: string) {
-    this.checkPermission(userRole);
+    checkPermission(userRole);
 
     const exists = await this.prisma.categories.findUnique({ where: { id } });
     if (!exists) throw new ConflictException('존재하지 않는 카테고리입니다.');
@@ -83,12 +84,5 @@ export class CategoriesService {
     this.findOne(id, userRole);
     await this.prisma.categories.delete({ where: { id } });
     return { deleted: id };
-  }
-
-  // 권한 확인
-  private checkPermission(userRole: string) {
-    if (userRole !== 'ADMIN') {
-      throw new ForbiddenException('권한이 없습니다.');
-    }
   }
 }
