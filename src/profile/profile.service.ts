@@ -8,6 +8,7 @@ import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { type AuthUser, CurrentUser } from '../common/current-user.decoraor';
 import { PrismaService } from '../prisma/prisma.service';
+import { checkPermission } from '../common/checkPermission';
 
 @Injectable()
 export class ProfileService {
@@ -17,7 +18,7 @@ export class ProfileService {
     @CurrentUser() user: AuthUser,
   ) {
     // 권한 과 같은 id인지 확인
-    this.checkPermission(user.role, createProfileDto.userId, user.id);
+    checkPermission(user.role, createProfileDto.userId, user.id);
 
     // 유저 확인(관리자 위해)
     const userCheck = await this.prisma.users.findUnique({
@@ -39,7 +40,7 @@ export class ProfileService {
 
   async findOne(id: number, user: AuthUser) {
     // 권한 확인 또는 같은 Id 확인
-    this.checkPermission(user.role, user.id, id);
+    checkPermission(user.role, user.id, id);
 
     // 진짜 있는 지 확인
     const exists = await this.prisma.profile.findUnique({
@@ -56,12 +57,5 @@ export class ProfileService {
       where: { userId: id },
       data: updateProfileDto,
     });
-  }
-
-  // 권한 확인 함수 분리
-  private checkPermission(userRole: string, userId: number, id: number) {
-    if (userRole !== 'ADMIN' && id !== userId) {
-      throw new ForbiddenException('권한이 없습니다.');
-    }
   }
 }
