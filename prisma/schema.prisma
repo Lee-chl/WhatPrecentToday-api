@@ -40,14 +40,14 @@ model Foods {
   id                   Int          @id @default(autoincrement())
   name                 String
   brandName            String
-  calorie              Int
-  carbohydrate         Int
-  protein              Int
-  fat                  Int
-  sodium               Int
-  NUTRI_AMOUNT_SERVING Int // 1회 섭취 참고량
-  SERVING_SIZE         Int // 영양 성분 기준량
-  total_capacity       Int // 총 용량
+  calorie              Decimal      @db.Decimal(10, 2)
+  carbohydrate         Decimal      @db.Decimal(10, 2)
+  protein              Decimal      @db.Decimal(10, 2)
+  fat                  Decimal      @db.Decimal(10, 2)
+  sodium               Decimal      @db.Decimal(10, 2)
+  NUTRI_AMOUNT_SERVING Decimal      @db.Decimal(10, 2) // 1회 섭취 참고량
+  SERVING_SIZE         Decimal      @db.Decimal(10, 2) // 영양 성분 기준량
+  total_capacity       Decimal      @db.Decimal(10, 2) // 총 용량
   category             Categories?  @relation(fields: [categoryId], references: [id])
   categoryId           Int?
   created_at           DateTime     @default(now())
@@ -84,11 +84,11 @@ model daily_nutrition_logs {
   id           Int      @id @default(autoincrement())
   userId       Int      @unique
   user         Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  calorie      Int
-  carbohydrate Int
-  protein      Int
-  fat          Int
-  sodium       Int
+  calorie      Decimal  @db.Decimal(10, 2)
+  carbohydrate Decimal  @db.Decimal(10, 2)
+  protein      Decimal  @db.Decimal(10, 2)
+  fat          Decimal  @db.Decimal(10, 2)
+  sodium       Decimal  @db.Decimal(10, 2)
   log_date     DateTime @default(now())
   created_at   DateTime @default(now())
   updateAt     DateTime @updatedAt
@@ -100,12 +100,12 @@ model intake_logs {
   user         Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
   foodId       Int      @unique
   food         Foods    @relation(fields: [foodId], references: [id], onDelete: Cascade)
-  intake       Int
-  calorie      Int
-  carbohydrate Int
-  protein      Int
-  fat          Int
-  sodium       Int
+  intake       Decimal  @db.Decimal(10, 2)
+  calorie      Decimal  @db.Decimal(10, 2)
+  carbohydrate Decimal  @db.Decimal(10, 2)
+  protein      Decimal  @db.Decimal(10, 2)
+  fat          Decimal  @db.Decimal(10, 2)
+  sodium       Decimal  @db.Decimal(10, 2)
   eaten_at     DateTime @default(now())
   updateAt     DateTime @updatedAt
 }
