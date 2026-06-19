@@ -54,7 +54,6 @@ export class CreateFoodDto {
   @ApiProperty({ example: 100 })
   @IsNumber()
   @Min(0)
-  @IsOptional()
   SERVING_SIZE: number = 0;
 
   @ApiProperty({ example: 710 })
