@@ -375,16 +375,17 @@ export class IntakeLogsService {
           },
         },
       });
-      if (!dailyNutritionExist)
-        throw new NotFoundException('이미 없는 날짜별 영양 정보입니다.');
-      await tx.daily_nutrition_logs.delete({
-        where: {
-          userId_log_date: {
-            userId: exist.userId,
-            log_date: exist.eaten_at,
+      if (dailyNutritionExist) {
+        await tx.daily_nutrition_logs.delete({
+          where: {
+            userId_log_date: {
+              userId: exist.userId,
+              log_date: exist.eaten_at,
+            },
           },
-        },
-      });
+        });
+      }
+
       return { deleted: id };
     });
   }
