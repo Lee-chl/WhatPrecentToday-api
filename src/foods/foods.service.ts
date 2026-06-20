@@ -71,15 +71,18 @@ export class FoodsService {
           `카테고리 ${updateFoodDto.categoryId}가 없습니다.`,
         );
     }
-    // 이미 있는 food+브랜드 인지 확인
-    const exists = await this.prisma.foods.findFirst({
-      where: { name: updateFoodDto.name, brandName: updateFoodDto.brandName },
-    });
-    if (exists) {
-      throw new ConflictException(
-        `이미 있는 브랜드: ${updateFoodDto.brandName}과 식품: ${updateFoodDto.name} 입니다.`,
-      );
+    if (updateFoodDto.name && updateFoodDto.brandName) {
+      // 이미 있는 food+브랜드 인지 확인
+      const exists = await this.prisma.foods.findFirst({
+        where: { name: updateFoodDto.name, brandName: updateFoodDto.brandName },
+      });
+      if (exists) {
+        throw new ConflictException(
+          `이미 있는 브랜드: ${updateFoodDto.brandName}과 식품: ${updateFoodDto.name} 입니다.`,
+        );
+      }
     }
+
     return this.prisma.foods.update({ where: { id }, data: updateFoodDto });
   }
 
