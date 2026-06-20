@@ -38,14 +38,13 @@ export class ProfileService {
   }
 
   async findOne(id: number, user: AuthUser) {
-    // 권한 확인 또는 같은 Id 확인
-    checkPermission(user.role, user.id, id);
-
     // 진짜 있는 지 확인
     const exists = await this.prisma.profile.findUnique({
       where: { userId: id },
     });
     if (!exists) throw new NotFoundException('프로파일이 없어요 만들어주세요.');
+    // 권한 확인 또는 같은 Id 확인
+    checkPermission(user.role, user.id, exists.userId);
     return exists;
   }
 
