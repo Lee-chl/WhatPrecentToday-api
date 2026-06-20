@@ -53,6 +53,8 @@ model Foods {
   created_at           DateTime      @default(now())
   intakeLogs           intake_logs[]
   updateAt             DateTime      @updatedAt
+
+  @@unique([brandName, name])
 }
 
 model Categories {
@@ -71,6 +73,7 @@ model Profile {
   weight            Int
   height            Int
   gender            Gender
+  age               Int      @default(20)
   calorie_goal      Int      @default(2000)
   carbohydrate_goal Int      @default(250)
   protein_goal      Int      @default(100)
