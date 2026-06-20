@@ -8,10 +8,7 @@ import { UpdateIntakeLogDto } from './dto/update-intake_log.dto';
 import { type AuthUser, CurrentUser } from '../common/current-user.decoraor';
 import { checkPermission } from '../common/checkPermission';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  calculateNutrition,
-  intakeNutrients,
-} from '../common/intake-nutrients';
+import { intakeNutrients } from '../common/intake-nutrients';
 import { QueryDto } from '../common/query.dto';
 import { CreateDailyNutritionLogDto } from '../daily_nutrition_logs/dto/create-daily_nutrition_log.dto';
 import { UpdateDailyNutritionLogDto } from '../daily_nutrition_logs/dto/update-daily_nutrition_log.dto';
@@ -30,7 +27,7 @@ export class IntakeLogsService {
     });
     if (!userExist)
       throw new NotFoundException(
-        `유저 : ${createIntakeLogDto.userId}가 없어요`,
+        `유저: ${createIntakeLogDto.userId}가 없어요`,
       );
     // 음식 확인
     const foodExist = await this.prisma.foods.findUnique({
@@ -42,11 +39,14 @@ export class IntakeLogsService {
       throw new NotFoundException(
         `식품: ${createIntakeLogDto.foodId}가 없어요`,
       );
+
     // createIntakeLogDto 계산 하기 전 섭취량 확인!
     if (!createIntakeLogDto.intake) {
-      createIntakeLogDto.intake =
-        foodExist.NUTRI_AMOUNT_SERVING?.toNumber() ??
-        foodExist.total_capacity?.toNumber();
+      if (foodExist.NUTRI_AMOUNT_SERVING.toNumber() > 0) {
+        createIntakeLogDto.intake = foodExist.NUTRI_AMOUNT_SERVING.toNumber();
+      } else if (foodExist.total_capacity.toNumber() > 0) {
+        createIntakeLogDto.intake = foodExist.total_capacity.toNumber();
+      }
       // 한번 더 체크
       if (!createIntakeLogDto.intake) {
         throw new NotFoundException(`섭취량이 없어요`);
@@ -78,7 +78,6 @@ export class IntakeLogsService {
       };
       const intake = createIntakeLogDto.intake;
       const servingSize: number = foodExist.SERVING_SIZE.toNumber();
-
       const { calorie, carbohydrate, protein, fat, sodium } = intakeNutrients({
         intake,
         nutrients: nutrient,
@@ -107,15 +106,14 @@ export class IntakeLogsService {
         },
       });
       // dto 에 계산할 값들 넣기
-      const newDailyNutritionDTO = new CreateDailyNutritionLogDto({
-        userId: intakeLog.userId,
-        calorie: intakeLog.calorie.toNumber(),
-        carbohydrate: intakeLog.carbohydrate.toNumber(),
-        protein: intakeLog.protein.toNumber(),
-        fat: intakeLog.fat.toNumber(),
-        sodium: intakeLog.sodium.toNumber(),
-        log_date: intakeLog.eaten_at,
-      });
+      const newDailyNutritionDTO = new CreateDailyNutritionLogDto();
+      newDailyNutritionDTO.userId = intakeLog.userId;
+      newDailyNutritionDTO.calorie = intakeLog.calorie.toNumber();
+      newDailyNutritionDTO.carbohydrate = intakeLog.carbohydrate.toNumber();
+      newDailyNutritionDTO.protein = intakeLog.protein.toNumber();
+      newDailyNutritionDTO.fat = intakeLog.fat.toNumber();
+      newDailyNutritionDTO.sodium = intakeLog.sodium.toNumber();
+      newDailyNutritionDTO.log_date = intakeLog.eaten_at;
 
       // 그 전 값이 있으면 현재 음식 값이랑 더해주기
       if (dailyNutritionExist) {
@@ -127,38 +125,6 @@ export class IntakeLogsService {
         newDailyNutritionDTO.sodium += dailyNutritionExist.sodium.toNumber();
       }
 
-      // profile에서 goal 가져오기
-      const profile = await tx.profile.findUnique({
-        where: { userId: newDailyNutritionDTO.userId },
-      });
-      if (!profile)
-        throw new NotFoundException(
-          `${newDailyNutritionDTO.userId}의 목표가 없어요
-          프로필에서 작성해주세요`,
-        );
-      const {
-        calorieRatio,
-        carbohydrateRatio,
-        proteinRatio,
-        fatRatio,
-        sodiumRatio,
-      } = calculateNutrition(
-        {
-          calorie: newDailyNutritionDTO.calorie,
-          carbohydrate: newDailyNutritionDTO.carbohydrate,
-          protein: newDailyNutritionDTO.protein,
-          fat: newDailyNutritionDTO.fat,
-          sodium: newDailyNutritionDTO.sodium,
-        },
-        {
-          calorie_goal: profile.calorie_goal,
-          carbohydrate_goal: profile.carbohydrate_goal,
-          protein_goal: profile.protein_goal,
-          fat_goal: profile.fat_goal,
-          sodium_goal: profile.sodium_goal,
-        },
-      );
-
       // db에 저장 있으면 update 없으면 insert
       await tx.daily_nutrition_logs.upsert({
         where: {
@@ -168,19 +134,19 @@ export class IntakeLogsService {
           },
         },
         update: {
-          calorie: calorieRatio,
-          carbohydrate: carbohydrateRatio,
-          protein: proteinRatio,
-          fat: fatRatio,
-          sodium: sodiumRatio,
+          calorie: newDailyNutritionDTO.calorie,
+          carbohydrate: newDailyNutritionDTO.carbohydrate,
+          protein: newDailyNutritionDTO.protein,
+          fat: newDailyNutritionDTO.fat,
+          sodium: newDailyNutritionDTO.sodium,
         },
         create: {
           userId: newDailyNutritionDTO.userId,
-          calorie: calorieRatio,
-          carbohydrate: carbohydrateRatio,
-          protein: proteinRatio,
-          fat: fatRatio,
-          sodium: sodiumRatio,
+          calorie: newDailyNutritionDTO.calorie,
+          carbohydrate: newDailyNutritionDTO.carbohydrate,
+          protein: newDailyNutritionDTO.protein,
+          fat: newDailyNutritionDTO.fat,
+          sodium: newDailyNutritionDTO.sodium,
           log_date: new Date(newDailyNutritionDTO.log_date),
         },
       });
@@ -223,9 +189,12 @@ export class IntakeLogsService {
 
       // 계산 하기 전에 값 인입해주기
       if (!updateIntakeLogDto.intake) {
-        updateIntakeLogDto.intake =
-          foodExists!.NUTRI_AMOUNT_SERVING?.toNumber() ||
-          foodExists!.total_capacity?.toNumber();
+        if (foodExists!.NUTRI_AMOUNT_SERVING.toNumber() > 0) {
+          updateIntakeLogDto.intake =
+            foodExists!.NUTRI_AMOUNT_SERVING.toNumber();
+        } else if (foodExists!.total_capacity.toNumber() > 0) {
+          updateIntakeLogDto.intake = foodExists!.total_capacity.toNumber();
+        }
         // 한번 더 체크
         if (!updateIntakeLogDto.intake) {
           throw new NotFoundException(`섭취량이 없어요`);
@@ -305,29 +274,6 @@ export class IntakeLogsService {
           프로필에서 작성해주세요`,
         );
 
-      const {
-        calorieRatio,
-        carbohydrateRatio,
-        proteinRatio,
-        fatRatio,
-        sodiumRatio,
-      } = calculateNutrition(
-        {
-          calorie: updateDailyNutritionDTO.calorie,
-          carbohydrate: updateDailyNutritionDTO.carbohydrate,
-          protein: updateDailyNutritionDTO.protein,
-          fat: updateDailyNutritionDTO.fat,
-          sodium: updateDailyNutritionDTO.sodium,
-        },
-        {
-          calorie_goal: profile.calorie_goal,
-          carbohydrate_goal: profile.carbohydrate_goal,
-          protein_goal: profile.protein_goal,
-          fat_goal: profile.fat_goal,
-          sodium_goal: profile.sodium_goal,
-        },
-      );
-
       // db에 저장 있으면 update 없으면 insert
       await tx.daily_nutrition_logs.upsert({
         where: {
@@ -337,19 +283,19 @@ export class IntakeLogsService {
           },
         },
         update: {
-          calorie: calorieRatio,
-          carbohydrate: carbohydrateRatio,
-          protein: proteinRatio,
-          fat: fatRatio,
-          sodium: sodiumRatio,
+          calorie: updateDailyNutritionDTO.calorie,
+          carbohydrate: updateDailyNutritionDTO.carbohydrate,
+          protein: updateDailyNutritionDTO.protein,
+          fat: updateDailyNutritionDTO.fat,
+          sodium: updateDailyNutritionDTO.sodium,
         },
         create: {
           userId: updateDailyNutritionDTO.userId,
-          calorie: calorieRatio,
-          carbohydrate: carbohydrateRatio,
-          protein: proteinRatio,
-          fat: fatRatio,
-          sodium: sodiumRatio,
+          calorie: updateDailyNutritionDTO.calorie,
+          carbohydrate: updateDailyNutritionDTO.carbohydrate,
+          protein: updateDailyNutritionDTO.protein,
+          fat: updateDailyNutritionDTO.fat,
+          sodium: updateDailyNutritionDTO.sodium,
           log_date: new Date(updateDailyNutritionDTO.log_date),
         },
       });

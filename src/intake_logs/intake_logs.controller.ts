@@ -44,7 +44,7 @@ export class IntakeLogsController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: '한명의 사용자의 음식 섭취 기록 조회' })
+  @ApiOperation({ summary: '한개의 음식 섭취 기록 조회' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.intakeLogsService.findOne(id);
   }
