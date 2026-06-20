@@ -36,17 +36,14 @@ export class CategoriesController {
 
   @Get()
   @ApiOperation({ summary: '모든 카테고리 조회' })
-  findAll(@Query() query: QueryDto, @CurrentUser('role') userRole: string) {
-    return this.categoriesService.findAll(query, userRole);
+  findAll(@Query() query: QueryDto) {
+    return this.categoriesService.findAll(query);
   }
 
   @Get(':id')
   @ApiOperation({ summary: '카테고리 하나 조회' })
-  findOne(
-    @Param('id', ParseIntPipe) id: number,
-    @CurrentUser('role') userRole: string,
-  ) {
-    return this.categoriesService.findOne(id, userRole);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.categoriesService.findOne(id);
   }
 
   @Patch(':id')

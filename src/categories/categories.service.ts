@@ -26,10 +26,7 @@ export class CategoriesService {
       data: createCategoryDto,
     });
   }
-  async findAll(query: QueryDto, userRole: string) {
-    // 권한 확인
-    checkPermissionRole(userRole);
-
+  async findAll(query: QueryDto) {
     const { page, limit } = query;
     const [categories, total] = await Promise.all([
       this.prisma.categories.findMany({
@@ -49,9 +46,7 @@ export class CategoriesService {
     };
   }
 
-  async findOne(id: number, userRole: string) {
-    checkPermissionRole(userRole);
-
+  async findOne(id: number) {
     const exists = await this.prisma.categories.findUnique({ where: { id } });
     if (!exists) throw new NotFoundException('존재하지 않는 카테고리입니다.');
 
@@ -64,7 +59,8 @@ export class CategoriesService {
     userRole: string,
   ) {
     // 권한 , 카테고리 id가 있는 지 확인
-    await this.findOne(id, userRole);
+    checkPermissionRole(userRole);
+    await this.findOne(id);
 
     // 중복 확인
     const exists = await this.prisma.categories.findUnique({
@@ -86,7 +82,8 @@ export class CategoriesService {
 
   async remove(id: number, userRole: string) {
     // 권한과 있는 지 확인
-    await this.findOne(id, userRole);
+    checkPermissionRole(userRole);
+    await this.findOne(id);
     await this.prisma.categories.delete({ where: { id } });
     return { deleted: id };
   }
