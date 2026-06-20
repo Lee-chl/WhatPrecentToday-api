@@ -73,30 +73,14 @@ const checkNutrients = (
     );
 };
 
-export const calculateNutrition = (
-  nutrients: Nutrients,
-  goal: GoalNutrients,
-) => {
-  const calorieRatio = nutrients.calorie / goal.calorie_goal;
-  const carbohydrateRatio = nutrients.carbohydrate / goal.carbohydrate_goal;
-  const proteinRatio = nutrients.protein / goal.protein_goal;
-  const fatRatio = nutrients.fat / goal.fat_goal;
-  const sodiumRatio = nutrients.sodium / goal.sodium_goal;
-
-  return {
-    calorieRatio,
-    carbohydrateRatio,
-    proteinRatio,
-    fatRatio,
-    sodiumRatio,
-  };
-};
-
-export const percentNutrition = (nutrients: Nutrients) => {
-  const perCalorie = nutrients.calorie * 100;
-  const perCarbohydrate = nutrients.carbohydrate * 100;
-  const perProtein = nutrients.protein * 100;
-  const perFat = nutrients.fat * 100;
-  const perSodium = nutrients.sodium * 100;
+export const percentNutrition = (nutrients: Nutrients, goal: GoalNutrients) => {
+  const perCalorie = ((nutrients.calorie / goal.calorie_goal) * 100).toFixed(2);
+  const perCarbohydrate = (
+    (nutrients.carbohydrate / goal.carbohydrate_goal) *
+    100
+  ).toFixed(2);
+  const perProtein = ((nutrients.protein / goal.protein_goal) * 100).toFixed(2);
+  const perFat = ((nutrients.fat / goal.fat_goal) * 100).toFixed(2);
+  const perSodium = ((nutrients.sodium / goal.sodium_goal) * 100).toFixed(2);
   return { perCalorie, perCarbohydrate, perProtein, perFat, perSodium };
 };
