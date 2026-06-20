@@ -10,6 +10,7 @@ import { registerDto } from '../auth/dto/register.dto';
 import { type AuthUser } from '../common/current-user.decoraor';
 import { checkPermissionRole } from 'src/common/checkPermission';
 import { QueryDto } from '../common/query.dto';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -32,7 +33,22 @@ export class UsersService {
       }),
       this.prisma.users.count(),
     ]);
-    return { users, total, page, limit, totalPage: Math.ceil(total / limit) };
+
+    const results: {
+      id: number;
+      email: string;
+      name: string;
+      role: Role;
+      created_at: Date;
+      updateAt: Date;
+    }[] = [];
+
+    users.map((user) => {
+      const { password, ...result } = user;
+      results.push(result);
+    });
+
+    return { results, total, page, limit, totalPage: Math.ceil(total / limit) };
   }
 
   async findOne(id: number, user: AuthUser) {
@@ -44,7 +60,8 @@ export class UsersService {
     const exists = await this.prisma.users.findUnique({ where: { id } });
     if (!exists) throw new NotFoundException(`${id} 유저가 없습니다.`);
 
-    return exists;
+    const { password, ...result } = exists;
+    return result;
   }
 
   findByEmail(email: string) {
