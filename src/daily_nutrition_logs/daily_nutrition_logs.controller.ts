@@ -28,7 +28,7 @@ export class DailyNutritionLogsController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: '데일리 영양 로그 본인만 조회' })
+  @ApiOperation({ summary: '데일리 영양 로그 하나 조회' })
   findOne(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: AuthUser,
