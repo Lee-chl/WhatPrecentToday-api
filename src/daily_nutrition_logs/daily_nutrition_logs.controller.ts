@@ -1,16 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { DailyNutritionLogsService } from './daily_nutrition_logs.service';
-import { CreateDailyNutritionLogDto } from './dto/create-daily_nutrition_log.dto';
-import { UpdateDailyNutritionLogDto } from './dto/update-daily_nutrition_log.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('daily-nutrition-logs')
+@ApiTags('Daily Nutrition logs')
 export class DailyNutritionLogsController {
-  constructor(private readonly dailyNutritionLogsService: DailyNutritionLogsService) {}
-
-  @Post()
-  create(@Body() createDailyNutritionLogDto: CreateDailyNutritionLogDto) {
-    return this.dailyNutritionLogsService.create(createDailyNutritionLogDto);
-  }
+  constructor(
+    private readonly dailyNutritionLogsService: DailyNutritionLogsService,
+  ) {}
 
   @Get()
   findAll() {
@@ -20,15 +17,5 @@ export class DailyNutritionLogsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.dailyNutritionLogsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDailyNutritionLogDto: UpdateDailyNutritionLogDto) {
-    return this.dailyNutritionLogsService.update(+id, updateDailyNutritionLogDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.dailyNutritionLogsService.remove(+id);
   }
 }

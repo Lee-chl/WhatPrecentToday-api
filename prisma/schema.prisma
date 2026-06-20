@@ -82,7 +82,7 @@ model Profile {
 
 model daily_nutrition_logs {
   id           Int      @id @default(autoincrement())
-  userId       Int      @unique
+  userId       Int
   user         Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
   calorie      Decimal  @db.Decimal(10, 2)
   carbohydrate Decimal  @db.Decimal(10, 2)
@@ -92,6 +92,8 @@ model daily_nutrition_logs {
   log_date     DateTime @default(now())
   created_at   DateTime @default(now())
   updateAt     DateTime @updatedAt
+
+  @@unique([userId, log_date])
 }
 
 model intake_logs {

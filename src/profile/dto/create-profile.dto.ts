@@ -28,29 +28,34 @@ export class CreateProfileDto {
   @Type(() => Number)
   @IsInt()
   @ApiProperty({ example: 2000 })
+  @Min(1)
   calorie_goal: number;
 
   @Optional()
   @Type(() => Number)
   @IsInt()
   @ApiProperty({ example: 250 })
+  @Min(1)
   carbohydrate_goal: number;
 
   @Optional()
   @Type(() => Number)
   @IsInt()
   @ApiProperty({ example: 100 })
+  @Min(1)
   protein_goal: number;
 
   @Optional()
   @Type(() => Number)
   @IsInt()
   @ApiProperty({ example: 65 })
+  @Min(1)
   fat_goal: number;
 
   @Optional()
   @Type(() => Number)
   @IsInt()
   @ApiProperty({ example: 2000 })
+  @Min(1)
   sodium_goal: number;
 }

@@ -26,25 +26,31 @@ export class IntakeLogsController {
   constructor(private readonly intakeLogsService: IntakeLogsService) {}
 
   @Post()
-  @ApiOperation({ summary: '음식 섭취한 기록 생성' })
-  create(
+  @ApiOperation({ summary: '음식 섭취한 기록과 daily Nutrition log 저장' })
+  saveIntakeAndDailyNutrition(
     @Body() createIntakeLogDto: CreateIntakeLogDto,
     @CurrentUser() user: AuthUser,
   ) {
-    return this.intakeLogsService.create(createIntakeLogDto, user);
+    return this.intakeLogsService.saveIntakeAndDailyNutrition(
+      createIntakeLogDto,
+      user,
+    );
   }
 
   @Get()
+  @ApiOperation({ summary: '모든 사용자의 음식 섭취 기록 조회' })
   findAll(@Query() query: QueryDto) {
     return this.intakeLogsService.findAll(query);
   }
 
   @Get(':id')
+  @ApiOperation({ summary: '한명의 사용자의 음식 섭취 기록 조회' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.intakeLogsService.findOne(id);
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: '음식 섭취한 기록과 daily Nutrition log 수정' })
   update(
     @Param('id') id: string,
     @Body() updateIntakeLogDto: UpdateIntakeLogDto,
@@ -53,6 +59,7 @@ export class IntakeLogsController {
     return this.intakeLogsService.update(+id, updateIntakeLogDto, user);
   }
 
+  @ApiOperation({ summary: '음식 섭취한 기록과 daily Nutrition log 삭제' })
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: AuthUser) {
     return this.intakeLogsService.remove(id, user);

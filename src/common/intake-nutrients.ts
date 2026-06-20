@@ -1,18 +1,34 @@
 import { BadRequestException } from '@nestjs/common';
 
 interface Nutrients {
-  intake: number;
   calorie: number;
   carbohydrate: number;
   protein: number;
   fat: number;
   sodium: number;
+}
+
+interface GoalNutrients {
+  calorie_goal: number;
+  carbohydrate_goal: number;
+  protein_goal: number;
+  fat_goal: number;
+  sodium_goal: number;
+}
+
+interface IntakeNutrientType {
+  intake: number;
+  nutrients: Nutrients;
   servingSize: number;
 }
-export const intakeNutrients = (nutrients: Nutrients) => {
-  checkNutrients(nutrients);
+export const intakeNutrients = ({
+  intake,
+  nutrients,
+  servingSize,
+}: IntakeNutrientType) => {
+  checkNutrients(intake, nutrients, servingSize);
   // 섭취량 / 영양성분 기준량
-  const ratio = nutrients.intake / nutrients.servingSize;
+  const ratio = intake / servingSize;
   // 탄 단 지 나트륨 계산
   const calorie = ratio * nutrients.calorie;
   const carbohydrate = ratio * nutrients.carbohydrate;
@@ -22,8 +38,12 @@ export const intakeNutrients = (nutrients: Nutrients) => {
   return { calorie, carbohydrate, protein, fat, sodium };
 };
 
-const checkNutrients = (nutrients: Nutrients) => {
-  if (nutrients.intake === null || nutrients.intake < 0)
+const checkNutrients = (
+  intake: number,
+  nutrients: Nutrients,
+  servingSize: number,
+) => {
+  if (intake === null || intake < 0)
     throw new BadRequestException(
       'intake 값이 이상해요(빈 값이거나 음수가 아니게 해주세요)',
     );
@@ -47,10 +67,36 @@ const checkNutrients = (nutrients: Nutrients) => {
     throw new BadRequestException(
       '나트륨 값이 이상해요(빈 값이거나 음수가 아니게 해주세요)',
     );
-  if (nutrients.servingSize === null || nutrients.servingSize < 0)
+  if (servingSize === null || servingSize < 0)
     throw new BadRequestException(
       '영양성분 기준량이 이상해요(빈 값이거나 음수가 아니게 해주세요)',
     );
 };
 
-export const calculateNutrition = () => {};
+export const calculateNutrition = (
+  nutrients: Nutrients,
+  goal: GoalNutrients,
+) => {
+  const calorieRatio = nutrients.calorie / goal.calorie_goal;
+  const carbohydrateRatio = nutrients.carbohydrate / goal.carbohydrate_goal;
+  const proteinRatio = nutrients.protein / goal.protein_goal;
+  const fatRatio = nutrients.fat / goal.fat_goal;
+  const sodiumRatio = nutrients.sodium / goal.sodium_goal;
+
+  return {
+    calorieRatio,
+    carbohydrateRatio,
+    proteinRatio,
+    fatRatio,
+    sodiumRatio,
+  };
+};
+
+export const percentNutrition = (nutrients: Nutrients) => {
+  const perCalorie = nutrients.calorie * 100;
+  const perCarbohydrate = nutrients.carbohydrate * 100;
+  const perProtein = nutrients.protein * 100;
+  const perFat = nutrients.fat * 100;
+  const perSodium = nutrients.sodium * 100;
+  return { perCalorie, perCarbohydrate, perProtein, perFat, perSodium };
+};
