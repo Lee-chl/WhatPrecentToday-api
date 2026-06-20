@@ -1,6 +1,6 @@
 import { Gender } from '@prisma/client';
 import { Optional } from '@nestjs/common';
-import { IsEnum, IsInt, Min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
@@ -23,6 +23,11 @@ export class CreateProfileDto {
   @IsEnum(Gender)
   @ApiProperty({ example: 'Woman' })
   gender: Gender;
+
+  @IsInt()
+  @IsOptional()
+  @Min(1)
+  age: number;
 
   @Optional()
   @Type(() => Number)
