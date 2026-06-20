@@ -1,7 +1,6 @@
 import {
   ConflictException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateIntakeLogDto } from './dto/create-intake_log.dto';
@@ -21,28 +20,28 @@ export class IntakeLogsService {
   ) {
     checkPermission(user.role, user.id, createIntakeLogDto.userId);
     // 유저확인
-    const userExsist = await this.prisma.users.findUnique({
+    const userExist = await this.prisma.users.findUnique({
       where: { id: createIntakeLogDto.userId },
     });
-    if (!userExsist)
+    if (!userExist)
       throw new NotFoundException(
         `유저 : ${createIntakeLogDto.userId}가 없어요`,
       );
     // 음식 확인
-    const foodExsist = await this.prisma.foods.findUnique({
+    const foodExist = await this.prisma.foods.findUnique({
       where: {
         id: createIntakeLogDto.foodId,
       },
     });
-    if (!foodExsist)
+    if (!foodExist)
       throw new NotFoundException(
         `식품: ${createIntakeLogDto.foodId}가 없어요`,
       );
     // createIntakeLogDto 계산 하기 전 섭취량 확인!
     if (!createIntakeLogDto.intake) {
       createIntakeLogDto.intake =
-        foodExsist.NUTRI_AMOUNT_SERVING?.toNumber() ??
-        foodExsist.total_capacity?.toNumber();
+        foodExist.NUTRI_AMOUNT_SERVING?.toNumber() ??
+        foodExist.total_capacity?.toNumber();
       // 한번 더 체크
       if (!createIntakeLogDto.intake) {
         throw new NotFoundException(`섭취량이 없어요`);
@@ -64,12 +63,12 @@ export class IntakeLogsService {
     // 계산
     const nutrients = {
       intake: createIntakeLogDto.intake,
-      calorie: foodExsist.calorie.toNumber(),
-      carbohydrate: foodExsist.carbohydrate.toNumber(),
-      protein: foodExsist.protein.toNumber(),
-      fat: foodExsist.fat.toNumber(),
-      sodium: foodExsist.sodium.toNumber(),
-      servingSize: foodExsist.SERVING_SIZE.toNumber(),
+      calorie: foodExist.calorie.toNumber(),
+      carbohydrate: foodExist.carbohydrate.toNumber(),
+      protein: foodExist.protein.toNumber(),
+      fat: foodExist.fat.toNumber(),
+      sodium: foodExist.sodium.toNumber(),
+      servingSize: foodExist.SERVING_SIZE.toNumber(),
     };
 
     const { calorie, carbohydrate, protein, fat, sodium } =
@@ -163,6 +162,6 @@ export class IntakeLogsService {
     await this.prisma.intake_logs.delete({
       where: { id },
     });
-    return { deletd: id };
+    return { deleted: id };
   }
 }
